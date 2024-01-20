@@ -23,17 +23,17 @@ class Example extends Phaser.Scene
 
     preload ()
     {
-        this.load.spritesheet('HoneyBerry', '/img/HoneyBerry/HoneyBerrySprite.png', { frameWidth: 400, frameHeight: 400 });
-        this.load.spritesheet('Eyjafjalla', '/img/Eyjafjalla/EyjafjallaSpriteSheet.png', {frameWidth: 800, frameHeight: 800});
+        this.load.spritesheet('HoneyBerry', './img/HoneyBerry/HoneyBerrySprite.png', { frameWidth: 400, frameHeight: 400 });
+        this.load.spritesheet('Eyjafjalla', './img/Eyjafjalla/EyjafjallaSpriteSheet.png', {frameWidth: 800, frameHeight: 800});
         
-        this.load.spritesheet('darkBall', '/img/fireBall/Grey.png', {frameWidth: 192, frameHeight: 192});
-        this.load.spritesheet('redBall', '/img/fireBall/Red.png', {frameWidth: 192, frameHeight: 192});
-        this.load.spritesheet('lazer', '/img/firelazer/beam.png', {frameWidth: 300, frameHeight: 500});
+        this.load.spritesheet('darkBall', './img/fireBall/Grey.png', {frameWidth: 192, frameHeight: 192});
+        this.load.spritesheet('redBall', './img/fireBall/Red.png', {frameWidth: 192, frameHeight: 192});
+        this.load.spritesheet('lazer', './img/firelazer/beam.png', {frameWidth: 300, frameHeight: 500});
 
         this.load.image('sky', 'https://labs.phaser.io/src/games/firstgame/assets/sky.png');
         this.load.image('ground', 'https://labs.phaser.io/src/games/firstgame/assets/platform.png');
         
-        this.load.audio('mainBgm', '/audio/CODE_NAME_GAMMA.mp3');
+        this.load.audio('mainBgm', './audio/CODE_NAME_GAMMA.mp3');
         //this.load.spritesheet('dude', 'src/games/firstgame/assets/dude.png', { frameWidth: 32, frameHeight: 48 });
 
     }
@@ -188,6 +188,15 @@ class Example extends Phaser.Scene
         this.bgm = this.sound.add('mainBgm');
         this.bgm.play();
 
+        this.input.on('pointerdown', function (pointer)
+        {
+
+            console.log('down');
+
+            this.add.image(pointer.x, pointer.y, 'logo');
+
+        }, this);
+
         // boss patern
         this.boss.gameObject.anims.play('idleE', true);
         this.halo.gameObject.anims.play('darkBall', true);
@@ -266,25 +275,28 @@ class Example extends Phaser.Scene
 
     fireRain() {
         setInterval(e => {
-            this.fire0.gameObject.setVelocityY(0);
-            this.fire0.gameObject.x = Phaser.Math.Between(0, 160);
-            this.fire0.gameObject.y = 100;
-
-            this.fire1.gameObject.setVelocityY(0);
-            this.fire1.gameObject.x = Phaser.Math.Between(160, 320);
-            this.fire1.gameObject.y = 100;
-
-            this.fire2.gameObject.setVelocityY(0);
-            this.fire2.gameObject.x = Phaser.Math.Between(320, 480);
-            this.fire2.gameObject.y = 100;
-
-            this.fire3.gameObject.setVelocityY(0);
-            this.fire3.gameObject.x = Phaser.Math.Between(480, 640);
-            this.fire3.gameObject.y = 100;
-
-            this.fire4.gameObject.setVelocityY(0);
-            this.fire4.gameObject.x = Phaser.Math.Between(640, 800);
-            this.fire4.gameObject.y = 100;
+            if(this.isShoot){
+                this.fire0.gameObject.setVelocityY(0);
+                this.fire0.gameObject.x = Phaser.Math.Between(0, 160);
+                this.fire0.gameObject.y = 100;
+    
+                this.fire1.gameObject.setVelocityY(0);
+                this.fire1.gameObject.x = Phaser.Math.Between(160, 320);
+                this.fire1.gameObject.y = 100;
+    
+                this.fire2.gameObject.setVelocityY(0);
+                this.fire2.gameObject.x = Phaser.Math.Between(320, 480);
+                this.fire2.gameObject.y = 100;
+    
+                this.fire3.gameObject.setVelocityY(0);
+                this.fire3.gameObject.x = Phaser.Math.Between(480, 640);
+                this.fire3.gameObject.y = 100;
+    
+                this.fire4.gameObject.setVelocityY(0);
+                this.fire4.gameObject.x = Phaser.Math.Between(640, 800);
+                this.fire4.gameObject.y = 100;
+            }
+            
         }, 571);
         setTimeout(e=> {
             setInterval(e => {
