@@ -13,7 +13,6 @@ class Example extends Phaser.Scene
     {
         this.load.spritesheet('HoneyBerry', '/img/HoneyBerry/test2.png', { frameWidth: 800, frameHeight: 800 });
         
-        
         this.load.image('sky', 'https://labs.phaser.io/src/games/firstgame/assets/sky.png');
         this.load.image('ground', 'https://labs.phaser.io/src/games/firstgame/assets/platform.png');
         
@@ -46,10 +45,12 @@ class Example extends Phaser.Scene
         //  Player physics properties. Give the little guy a slight bounce.
         // this.player.setBounce(0.2);
         // this.player.setCollideWorldBounds(true);
+        this.player.setBounce(0.2);
+        this.player.setCollideWorldBounds(true);
 
         //  Our player animations, turning, walking left and walking right.
         this.anims.create({
-            key: 'left',
+            key: 'idle',
             frames: this.anims.generateFrameNumbers('HoneyBerry', { start: 0, end: 26 }),
             frameRate: 3,
             repeat: -1
@@ -81,12 +82,12 @@ class Example extends Phaser.Scene
             return;
         }
 
-        if (this.cursors.left.isDown)
-        {
-            this.player.setVelocityX(-160);
+        // if (this.cursors.left.isDown)
+        // {
+        //     this.player.setVelocityX(-160);
 
-            this.player.anims.play('left', true);
-        }
+        //     this.player.anims.play('idle', true);
+        // }
         // else if (this.cursors.right.isDown)
         // {
         //     this.player.setVelocityX(160);
