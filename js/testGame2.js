@@ -10,20 +10,30 @@ class Example extends Phaser.Scene
     player;
     player_sight = RIGHT_AIM;
     boss;
+    halo;
+    lazer;
     bgm;
     hpText = 1600;
+    fire0;
+    fire1;
+    fire2;
+    fire3;
+    fire4;
 
     preload ()
     {
         this.load.spritesheet('HoneyBerry', '/img/HoneyBerry/HoneyBerrySprite.png', { frameWidth: 400, frameHeight: 400 });
         this.load.spritesheet('Eyjafjalla', '/img/Eyjafjalla/EyjafjallaSpriteSheet.png', {frameWidth: 800, frameHeight: 800});
+        
+        this.load.spritesheet('darkBall', '/img/fireBall/Grey.png', {frameWidth: 192, frameHeight: 192});
+        this.load.spritesheet('redBall', '/img/fireBall/Red.png', {frameWidth: 192, frameHeight: 192});
+        this.load.spritesheet('lazer', '/img/firelazer/beam.png', {frameWidth: 300, frameHeight: 500});
 
         this.load.image('sky', 'https://labs.phaser.io/src/games/firstgame/assets/sky.png');
         this.load.image('ground', 'https://labs.phaser.io/src/games/firstgame/assets/platform.png');
         
         this.load.audio('mainBgm', '/audio/CODE_NAME_GAMMA.mp3');
         //this.load.spritesheet('dude', 'src/games/firstgame/assets/dude.png', { frameWidth: 32, frameHeight: 48 });
-        
 
     }
 
@@ -46,11 +56,24 @@ class Example extends Phaser.Scene
         this.platforms.create(-50, 350, 'ground').setScale(0.7,1).refreshBody();
         this.platforms.create(850, 350, 'ground').setScale(0.7,1).refreshBody();
 
-        
-
         // The player and its settings
         this.player = this.physics.add.sprite(100, 450, 'HoneyBerry').setScale(0.2);
         this.boss = this.physics.add.sprite(400, 500, 'Eyjafjalla').setScale(0.2).body.setAllowGravity(false);
+        this.boss.gameObject.setDepth(2);
+
+        this.halo = this.physics.add.sprite(-1000, -1000, 'darkBall').body.setAllowGravity(false);
+        this.halo.gameObject.setScale(2, 0.7);
+
+        this.lazer = this.physics.add.sprite(-1000, -1000, 'lazer').body.setAllowGravity(false);
+        this.lazer.gameObject.setScale(2);
+        this.lazer.gameObject.setBodySize(75, 1000);
+
+        this.fire0 = this.physics.add.sprite(-1000, -1000, 'redBall').body.setAllowGravity(false);
+        this.fire0.gameObject.setBodySize(25, 120);
+        this.fire1 = this.physics.add.sprite(-1000, -1000, 'redBall').body.setAllowGravity(false);
+        this.fire2 = this.physics.add.sprite(-1000, -1000, 'redBall').body.setAllowGravity(false);
+        this.fire3 = this.physics.add.sprite(-1000, -1000, 'redBall').body.setAllowGravity(false);
+        this.fire4 = this.physics.add.sprite(-1000, -1000, 'redBall').body.setAllowGravity(false);
 
         //  Player physics properties. Give the little guy a slight bounce.
         this.player.setCollideWorldBounds(true);
@@ -110,7 +133,7 @@ class Example extends Phaser.Scene
         this.anims.create({ 
             key: 'loop',
             frames: this.anims.generateFrameNumbers('Eyjafjalla', { start: 195, end: 288 }),
-            frameRate: 60,
+            frameRate: 40,
             repeat: -1
         });
 
@@ -128,6 +151,27 @@ class Example extends Phaser.Scene
             repeat: -1
         });
         
+        // burning Effect
+        this.anims.create({ 
+            key: 'lazer',
+            frames: this.anims.generateFrameNumbers('lazer', { start: 0, end: 11 }),
+            frameRate: 40,
+            repeat: -1
+        });
+
+        this.anims.create({ 
+            key: 'darkBall',
+            frames: this.anims.generateFrameNumbers('darkBall', { start: 0, end: 31 }),
+            frameRate: 60,
+            repeat: -1
+        });
+
+        this.anims.create({ 
+            key: 'redBall',
+            frames: this.anims.generateFrameNumbers('redBall', { start: 0, end: 31 }),
+            frameRate: 60,
+            repeat: -1
+        });
 
         //  Input Events
         this.cursors = this.input.keyboard.createCursorKeys();
@@ -141,9 +185,18 @@ class Example extends Phaser.Scene
 
         // boss patern
         this.boss.gameObject.anims.play('idleE', true);
-        setTimeout(e => {
-            
-        }, 18000);
+        this.halo.gameObject.anims.play('darkBall', true);
+        this.lazer.gameObject.anims.play('lazer', true);
+
+        this.fire0.gameObject.anims.play('redBall');
+        this.fire1.gameObject.anims.play('redBall');
+        this.fire2.gameObject.anims.play('redBall');
+        this.fire3.gameObject.anims.play('redBall');
+        this.fire4.gameObject.anims.play('redBall');
+        
+        this.fire0.gameObject.x = 100;
+        this.fire0.gameObject.y = 100;
+        this.fire0.gameObject.setVelocityY(1000);
 
     }
 
@@ -186,8 +239,19 @@ class Example extends Phaser.Scene
             this.boss.gameObject.anims.play('idle3', true);
         }
 
-        if(this.bgm.seek > 18) {
+        if(this.bgm.seek > 18 && this.bgm.seek < 19) {
+            this.halo.gameObject.x = 390;
+            this.halo.gameObject.y = 100;
+
+            this.lazer.gameObject.x = 390;
+            this.lazer.gameObject.y = 300;
+
             this.boss.gameObject.anims.play('loop', true);
+        }
+
+        if(this.bgm.seek >= 19) {
+            this.lazer.gameObject.x = -1000;
+            this.lazer.gameObject.y = -1000;
         }
 
         //console.log(this.bgm.seek);
