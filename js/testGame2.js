@@ -19,6 +19,7 @@ class Example extends Phaser.Scene
     fire2;
     fire3;
     fire4;
+    isShoot = true;
 
     preload ()
     {
@@ -71,9 +72,13 @@ class Example extends Phaser.Scene
         this.fire0 = this.physics.add.sprite(-1000, -1000, 'redBall').body.setAllowGravity(false);
         this.fire0.gameObject.setBodySize(25, 120);
         this.fire1 = this.physics.add.sprite(-1000, -1000, 'redBall').body.setAllowGravity(false);
+        this.fire1.gameObject.setBodySize(25, 120);
         this.fire2 = this.physics.add.sprite(-1000, -1000, 'redBall').body.setAllowGravity(false);
+        this.fire2.gameObject.setBodySize(25, 120);
         this.fire3 = this.physics.add.sprite(-1000, -1000, 'redBall').body.setAllowGravity(false);
+        this.fire3.gameObject.setBodySize(25, 120);
         this.fire4 = this.physics.add.sprite(-1000, -1000, 'redBall').body.setAllowGravity(false);
+        this.fire4.gameObject.setBodySize(25, 120);
 
         //  Player physics properties. Give the little guy a slight bounce.
         this.player.setCollideWorldBounds(true);
@@ -194,10 +199,8 @@ class Example extends Phaser.Scene
         this.fire3.gameObject.anims.play('redBall');
         this.fire4.gameObject.anims.play('redBall');
         
-        this.fire0.gameObject.x = 100;
-        this.fire0.gameObject.y = 100;
-        this.fire0.gameObject.setVelocityY(1000);
-
+        this.events.once('fire', this.fireRain, this);
+        this.events.once('fire2', this.fireRain, this);
     }
 
     update ()
@@ -252,10 +255,46 @@ class Example extends Phaser.Scene
         if(this.bgm.seek >= 19) {
             this.lazer.gameObject.x = -1000;
             this.lazer.gameObject.y = -1000;
+
+            this.events.emit('fire');
+            this.events.emit('fire2');
         }
 
         //console.log(this.bgm.seek);
         
+    }
+
+    fireRain() {
+        setInterval(e => {
+            this.fire0.gameObject.setVelocityY(0);
+            this.fire0.gameObject.x = Phaser.Math.Between(0, 160);
+            this.fire0.gameObject.y = 100;
+
+            this.fire1.gameObject.setVelocityY(0);
+            this.fire1.gameObject.x = Phaser.Math.Between(160, 320);
+            this.fire1.gameObject.y = 100;
+
+            this.fire2.gameObject.setVelocityY(0);
+            this.fire2.gameObject.x = Phaser.Math.Between(320, 480);
+            this.fire2.gameObject.y = 100;
+
+            this.fire3.gameObject.setVelocityY(0);
+            this.fire3.gameObject.x = Phaser.Math.Between(480, 640);
+            this.fire3.gameObject.y = 100;
+
+            this.fire4.gameObject.setVelocityY(0);
+            this.fire4.gameObject.x = Phaser.Math.Between(640, 800);
+            this.fire4.gameObject.y = 100;
+        }, 571);
+        setTimeout(e=> {
+            setInterval(e => {
+                this.fire0.gameObject.setVelocityY(2000);
+                this.fire1.gameObject.setVelocityY(2000);
+                this.fire2.gameObject.setVelocityY(2000);
+                this.fire3.gameObject.setVelocityY(2000);
+                this.fire4.gameObject.setVelocityY(2000);
+            }, 571)
+        }, 285)
     }
 
 
