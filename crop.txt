@@ -1,0 +1,10 @@
+left200 
+top275 
+w 400 
+h 400
+
+87 idle
+12 begin
+10 end
+87 idle3
+93 loop
