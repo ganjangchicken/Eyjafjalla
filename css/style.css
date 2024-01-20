@@ -1,0 +1,20 @@
+
+.game {
+    width: 800px;
+    height: 600px;
+
+    border: 2px black solid;
+    border-radius: 5px;
+}
+
+.char{
+    position : absolute;
+
+    left: 200px;
+}
+
+.char > img {
+    
+    width: 200px;
+    height: 200px;
+}
