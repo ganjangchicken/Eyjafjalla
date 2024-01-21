@@ -8,7 +8,7 @@ class Main extends Phaser.Scene
     }
 
     gameOver = false;
-    gameStatus = 'lose';
+    gameStatus = 'win';
     cursors;
     platforms;
     player;
@@ -373,7 +373,6 @@ class Main extends Phaser.Scene
             this.isShoot = true;
         }else if(this.bgm.seek == 0) {
             this.isShoot = false;
-            this.gameStatus == 'win';
         }
 
         //console.log(this.bgm.seek);
@@ -499,6 +498,8 @@ class Main extends Phaser.Scene
                     this.lazer2_.gameObject.y = ypos;
     
                 },1999);
+            }else {
+                this.gameOver = true;
             }
         }, 2284)
         
@@ -564,7 +565,7 @@ class NormalEnd extends Phaser.Scene
     create ()
     {
         this.img = this.add.image(400, 300, 'EB').setScale(0.5);
-        this.Text = this.add.text(40, 500, '용케 살아남으셨네요.\n 제가 선배와의 약속이 있는걸 다행으로 여기세요', { fontSize: '16px', fill: '#fff' });
+        this.Text = this.add.text(40, 500, '용케 살아남으셨네요.\n 제가 선배와의 약속이 있는걸 다행으로 여기세요', { fontSize: '16px', fill: '#000' });
         this.img.setInteractive();
         
         this.img.on('pointerdown', (pointer) => {
