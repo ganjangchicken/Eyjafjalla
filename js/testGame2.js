@@ -311,7 +311,12 @@ class Main extends Phaser.Scene
         {
             this.bgm.pause();
             this.scene.pause();
-            this.scene.launch('badEnd', {flag: this.gameStatus});
+            if(this.gameStatus == 'lose'){
+                this.scene.launch('badEnd', {flag: this.gameStatus});
+            }else if(this.gameStatus == 'win') {
+                this.scene.launch('NormalEnd', {flag: this.gameStatus});
+            }
+            
             
         }
         
@@ -368,6 +373,7 @@ class Main extends Phaser.Scene
             this.isShoot = true;
         }else if(this.bgm.seek == 0) {
             this.isShoot = false;
+            this.gameStatus == 'win';
         }
 
         //console.log(this.bgm.seek);
@@ -508,23 +514,64 @@ class Main extends Phaser.Scene
 
 class BadEnd extends Phaser.Scene
 {
-    
+    Text;
+    img;
+    img2;
+    counter = 0;
+
     constructor () {
         super({key : 'badEnd'});
     }
 
     preload ()
     {
-        this.load.image('E', './img/illustrate/bloodyE.png');
+        this.load.image('EB', './img/illustrate/bloodyE.png');
+        this.load.image('DH', './img/illustrate/drum_h.png');
     }
     create ()
     {
-        this.add.image(400, 300, 'E')
+        this.img = this.add.image(400, 300, 'DH').setScale(1.5);
+        this.Text = this.add.text(40, 500, '너무 시끄러워서 둘 다 담궜어요.', { fontSize: '32px', fill: '#fff' });
+        this.img.setInteractive();
+
+        this.img.on('pointerdown', (pointer) => {
+            this.img2 = this.add.image(400, 300, 'EB').setScale(0.5).setInteractive();
+            this.img.visible = false;
+            this.Text.setText("Game Over..");
+        })
+
+        
+
+    }
+}
+
+class NormalEnd extends Phaser.Scene
+{
+    Text;
+    img;
+    img2;
+    count = 0;
+
+    constructor () {
+        super({key : 'NormalEnd'});
     }
 
-    update ()
+    preload ()
     {
+        this.load.image('EB', './img/illustrate/darkE.png');
+        this.load.image('DH', './img/illustrate/drum_h.png');
+    }
+    create ()
+    {
+        this.img = this.add.image(400, 300, 'EB').setScale(0.5);
+        this.Text = this.add.text(40, 500, '용케 살아남으셨네요.\n 제가 선배와의 약속이 있는걸 다행으로 여기세요', { fontSize: '16px', fill: '#fff' });
+        this.img.setInteractive();
         
+        this.img.on('pointerdown', (pointer) => {
+            
+            this.Text.setText("꿀베리는 간신히 살아남았습니다...\n -fin-");
+
+        })
     }
 
 }
@@ -540,7 +587,7 @@ const config = {
             debug: false
         }
     },
-    scene: [Main, BadEnd]
+    scene: [Main, BadEnd, NormalEnd]
 };
 
 const game = new Phaser.Game(config);

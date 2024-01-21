@@ -3,8 +3,15 @@ top275
 w 400 
 h 400
 
+야퍄
 87 idle
 12 begin
 10 end
 87 idle3
 93 loop
+
+몰루베리
+130 idle
+65 move
+21 jump
+37 attack
