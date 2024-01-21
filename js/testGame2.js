@@ -4,21 +4,22 @@ const RIGHT_AIM = 1;
 class Example extends Phaser.Scene
 {
     gameOver = false;
-    score = 0;
     cursors;
     platforms;
     player;
     player_sight = RIGHT_AIM;
     boss;
     halo;
-    lazer;
+    lazer0;
     bgm;
-    hpText = 1600;
+    hpText;
+    hp = 1600;
     fire0;
     fire1;
     fire2;
     fire3;
     fire4;
+    fire5;
     isShoot = true;
 
     preload ()
@@ -29,6 +30,8 @@ class Example extends Phaser.Scene
         this.load.spritesheet('darkBall', './img/fireBall/Grey.png', {frameWidth: 192, frameHeight: 192});
         this.load.spritesheet('redBall', './img/fireBall/Red.png', {frameWidth: 192, frameHeight: 192});
         this.load.spritesheet('lazer', './img/firelazer/beam.png', {frameWidth: 300, frameHeight: 500});
+
+        this.load.spritesheet('sheep', './img/sheep/sheep.png', {frameWidth: 400, frameHeight: 400});
 
         this.load.image('sky', 'https://labs.phaser.io/src/games/firstgame/assets/sky.png');
         this.load.image('ground', 'https://labs.phaser.io/src/games/firstgame/assets/platform.png');
@@ -57,6 +60,8 @@ class Example extends Phaser.Scene
         this.platforms.create(-50, 350, 'ground').setScale(0.7,1).refreshBody();
         this.platforms.create(850, 350, 'ground').setScale(0.7,1).refreshBody();
 
+        this.hpText = this.add.text(16, 16, 'hp: 1600', { fontSize: '32px', fill: '#000' });
+
         // The player and its settings
         this.player = this.physics.add.sprite(100, 450, 'HoneyBerry').setScale(0.2);
         this.boss = this.physics.add.sprite(400, 500, 'Eyjafjalla').setScale(0.2).body.setAllowGravity(false);
@@ -65,20 +70,36 @@ class Example extends Phaser.Scene
         this.halo = this.physics.add.sprite(-1000, -1000, 'darkBall').body.setAllowGravity(false);
         this.halo.gameObject.setScale(2, 0.7);
 
-        this.lazer = this.physics.add.sprite(-1000, -1000, 'lazer').body.setAllowGravity(false);
-        this.lazer.gameObject.setScale(2);
-        this.lazer.gameObject.setBodySize(75, 1000);
+        this.lazer0 = this.physics.add.sprite(-1000, -1000, 'lazer').body.setAllowGravity(false);
+        this.lazer0.gameObject.setScale(2);
+        this.lazer0.gameObject.setBodySize(75, 1000);
+
+        this.lazer1 = this.physics.add.sprite(-1000, -1000, 'lazer').body.setAllowGravity(false);
+        this.lazer1.gameObject.setScale(2);
+        this.lazer1.gameObject.setBodySize(75, 1000);
+
+        this.lazer2 = this.physics.add.sprite(-1000, -1000, 'lazer').body.setAllowGravity(false);
+        this.lazer2.gameObject.setScale(2);
+        this.lazer2.gameObject.setBodySize(75, 1000);
 
         this.fire0 = this.physics.add.sprite(-1000, -1000, 'redBall').body.setAllowGravity(false);
         this.fire0.gameObject.setBodySize(25, 120);
+        this.fire0.gameObject.setScale(0.8);
         this.fire1 = this.physics.add.sprite(-1000, -1000, 'redBall').body.setAllowGravity(false);
         this.fire1.gameObject.setBodySize(25, 120);
+        this.fire1.gameObject.setScale(0.8);
         this.fire2 = this.physics.add.sprite(-1000, -1000, 'redBall').body.setAllowGravity(false);
         this.fire2.gameObject.setBodySize(25, 120);
+        this.fire2.gameObject.setScale(0.8);
         this.fire3 = this.physics.add.sprite(-1000, -1000, 'redBall').body.setAllowGravity(false);
         this.fire3.gameObject.setBodySize(25, 120);
+        this.fire3.gameObject.setScale(0.8);
         this.fire4 = this.physics.add.sprite(-1000, -1000, 'redBall').body.setAllowGravity(false);
         this.fire4.gameObject.setBodySize(25, 120);
+        this.fire4.gameObject.setScale(0.8);
+        this.fire5 = this.physics.add.sprite(-1000, -1000, 'redBall').body.setAllowGravity(false);
+        this.fire5.gameObject.setBodySize(25, 120);
+        this.fire5.gameObject.setScale(0.8);
 
         //  Player physics properties. Give the little guy a slight bounce.
         this.player.setCollideWorldBounds(true);
@@ -188,34 +209,52 @@ class Example extends Phaser.Scene
         this.bgm = this.sound.add('mainBgm');
         this.bgm.play();
 
-        this.input.on('pointerdown', function (pointer)
-        {
-
-            console.log('down');
-
-            this.add.image(pointer.x, pointer.y, 'logo');
-
-        }, this);
-
         // boss patern
         this.boss.gameObject.anims.play('idleE', true);
         this.halo.gameObject.anims.play('darkBall', true);
-        this.lazer.gameObject.anims.play('lazer', true);
+        this.lazer0.gameObject.anims.play('lazer', true);
 
         this.fire0.gameObject.anims.play('redBall');
         this.fire1.gameObject.anims.play('redBall');
         this.fire2.gameObject.anims.play('redBall');
         this.fire3.gameObject.anims.play('redBall');
         this.fire4.gameObject.anims.play('redBall');
+        this.fire5.gameObject.anims.play('redBall');
         
         this.events.once('fire', this.fireRain, this);
-        this.events.once('fire2', this.fireRain, this);
+        
+        //  Checks to see if the player overlaps with any of the stars, if he does call the collectStar function
+        this.physics.add.overlap(this.player, this.lazer0, this.count2, null, this);
+        this.physics.add.overlap(this.player, this.fire0, this.count1, null, this);
+        this.physics.add.overlap(this.player, this.fire1, this.count1, null, this);
+        this.physics.add.overlap(this.player, this.fire2, this.count1, null, this);
+        this.physics.add.overlap(this.player, this.fire3, this.count1, null, this);
+        this.physics.add.overlap(this.player, this.fire4, this.count1, null, this);
+        this.physics.add.overlap(this.player, this.fire5, this.count1, null, this);
+
+    }
+
+    count2() {
+        console.log(`hit lazer`);
+        this.hpText.setText(`hp: 0`);
+        this.gameOver = true;
+    }
+
+    count1() {
+        console.log(`hit`);
+        this.hp = this.hp - 30;
+        this.hpText.setText(`hp: ${this.hp}`);
+        if(this.hp <= 0) {
+            this.gameOver = true;
+        }
     }
 
     update ()
     {
         if (this.gameOver)
         {
+            this.bgm.pause();
+            this.sys.gameDestroy(true);
             return;
         }
         
@@ -224,13 +263,13 @@ class Example extends Phaser.Scene
 
         if (this.cursors.left.isDown)
         {
-            this.player.setVelocityX(-160);
+            this.player.setVelocityX(-240);
             
             this.player.anims.play('move_left', true);
         }
         else if (this.cursors.right.isDown)
         {
-            this.player.setVelocityX(160);
+            this.player.setVelocityX(240);
             
             this.player.anims.play('move_right', true);
         }
@@ -255,19 +294,25 @@ class Example extends Phaser.Scene
             this.halo.gameObject.x = 390;
             this.halo.gameObject.y = 100;
 
-            this.lazer.gameObject.x = 390;
-            this.lazer.gameObject.y = 300;
+            this.lazer0.gameObject.x = 390;
+            this.lazer0.gameObject.y = 300;
 
             this.boss.gameObject.anims.play('loop', true);
+        }else if(this.bgm.seek >= 19 && this.bgm.seek < 65) {
+            this.lazer0.gameObject.x = -1000;
+            this.lazer0.gameObject.y = -1000;
+
+            this.isShoot = true;
+            this.events.emit('fire');   
+        }else if(this.bgm.seek < 74 && this.bgm.seek >= 65) {
+            this.isShoot = false;
+        }else if(this.bgm.seek >= 74) {
+            this.isShoot = true;
+        }else if(this.bgm.seek == 0) {
+            this.isShoot = false;
         }
 
-        if(this.bgm.seek >= 19) {
-            this.lazer.gameObject.x = -1000;
-            this.lazer.gameObject.y = -1000;
 
-            this.events.emit('fire');
-            this.events.emit('fire2');
-        }
 
         //console.log(this.bgm.seek);
         
@@ -277,23 +322,27 @@ class Example extends Phaser.Scene
         setInterval(e => {
             if(this.isShoot){
                 this.fire0.gameObject.setVelocityY(0);
-                this.fire0.gameObject.x = Phaser.Math.Between(0, 160);
+                this.fire0.gameObject.x = Phaser.Math.Between(0, 133);
                 this.fire0.gameObject.y = 100;
     
                 this.fire1.gameObject.setVelocityY(0);
-                this.fire1.gameObject.x = Phaser.Math.Between(160, 320);
+                this.fire1.gameObject.x = Phaser.Math.Between(134, 266);
                 this.fire1.gameObject.y = 100;
     
                 this.fire2.gameObject.setVelocityY(0);
-                this.fire2.gameObject.x = Phaser.Math.Between(320, 480);
+                this.fire2.gameObject.x = Phaser.Math.Between(267, 399);
                 this.fire2.gameObject.y = 100;
     
                 this.fire3.gameObject.setVelocityY(0);
-                this.fire3.gameObject.x = Phaser.Math.Between(480, 640);
+                this.fire3.gameObject.x = Phaser.Math.Between(400, 533);
                 this.fire3.gameObject.y = 100;
     
                 this.fire4.gameObject.setVelocityY(0);
-                this.fire4.gameObject.x = Phaser.Math.Between(640, 800);
+                this.fire4.gameObject.x = Phaser.Math.Between(534, 666);
+                this.fire4.gameObject.y = 100;
+
+                this.fire4.gameObject.setVelocityY(0);
+                this.fire4.gameObject.x = Phaser.Math.Between(667, 800);
                 this.fire4.gameObject.y = 100;
             }
             
@@ -305,10 +354,12 @@ class Example extends Phaser.Scene
                 this.fire2.gameObject.setVelocityY(2000);
                 this.fire3.gameObject.setVelocityY(2000);
                 this.fire4.gameObject.setVelocityY(2000);
+                this.fire5.gameObject.setVelocityY(2000);
             }, 571)
         }, 285)
-    }
 
+    }
+    
 
 }
 
