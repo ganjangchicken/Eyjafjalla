@@ -181,7 +181,7 @@ const config = {
             debug: false
         }
     },
-    scene: Example
+    scene: Main
 };
 
 const game = new Phaser.Game(config);

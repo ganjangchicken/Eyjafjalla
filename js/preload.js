@@ -1,21 +1,38 @@
-let startTime = Date.now();
+class BadEnd extends Phaser.Scene
+{
+    
+    constructor () {
+        super({key : 'badEnd'});
+    }
 
-let temp = new Image('https://i.namu.wiki/i/qjg6OKC8UnHxlPxstzcHb_zZxjG_h0sMwcv_ytU2J3PN0PNjD8wnhbOclJKBAmk03696tvbnB9_LTcvM5t5DWccJ8r0QlyEGE8cMVzMblbw4cNK3IV3uGCkF_HLgEY53MskslZ344BI0DkJgLsCgDw.webp');
+    preload ()
+    {
+        this.load.image('E', './img/illustrate/bloodyE.png');
+    }
+    create ()
+    {
+        this.add.image(400, 300, 'E').setScale(0.5);
+    }
 
-let data = {
-    'Eyjafjalla' : { 
-        'begin' : new Image('/img/Eyjafjalla/Eyjafjalla_begin.gif'),
-        'end' : new Image('/img/Eyjafjalla/Eyjafjalla_end.gif'),
-        'idle' : new Image('/img/Eyjafjalla/Eyjafjalla_idle.gif'),
-        'loop' : new Image('/img/Eyjafjalla/Eyjafjalla_Loop.gif'),
-        'loopIdle' : new Image('/img/Eyjafjalla/Eyjafjalla_LoopIdle.gif')
-    } 
+    update ()
+    {
+        
+    }
 
 }
 
+const config = {
+    type: Phaser.AUTO,
+    width: 800,
+    height: 600,
+    physics: {
+        default: 'arcade',
+        arcade: {
+            gravity: { y: 1500 },
+            debug: false
+        }
+    },
+    scene: [BadEnd]
+};
 
-
-window.addEventListener('load', e => {
-    console.log("img upload finish!");
-    console.log(`${Date.now() - startTime}`);
-});
+const game = new Phaser.Game(config);

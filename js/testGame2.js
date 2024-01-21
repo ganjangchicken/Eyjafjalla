@@ -1,9 +1,14 @@
 const LEFT_AIM = 0;
 const RIGHT_AIM = 1;
 
-class Example extends Phaser.Scene
+class Main extends Phaser.Scene
 {
+    constructor () {
+        super({ key: 'main'});
+    }
+
     gameOver = false;
+    gameStatus = 'lose';
     cursors;
     platforms;
     player;
@@ -11,6 +16,12 @@ class Example extends Phaser.Scene
     boss;
     halo;
     lazer0;
+    lazer1;
+    lazer2;
+    lazer2_;
+    sheep0;
+    sheep1;
+    sheep2;
     bgm;
     hpText;
     hp = 1600;
@@ -30,6 +41,7 @@ class Example extends Phaser.Scene
         this.load.spritesheet('darkBall', './img/fireBall/Grey.png', {frameWidth: 192, frameHeight: 192});
         this.load.spritesheet('redBall', './img/fireBall/Red.png', {frameWidth: 192, frameHeight: 192});
         this.load.spritesheet('lazer', './img/firelazer/beam.png', {frameWidth: 300, frameHeight: 500});
+        this.load.spritesheet('lazer2', './img/firelazer/beam2.png', {frameWidth: 500, frameHeight: 300});
 
         this.load.spritesheet('sheep', './img/sheep/sheep.png', {frameWidth: 400, frameHeight: 400});
 
@@ -81,6 +93,19 @@ class Example extends Phaser.Scene
         this.lazer2 = this.physics.add.sprite(-1000, -1000, 'lazer').body.setAllowGravity(false);
         this.lazer2.gameObject.setScale(2);
         this.lazer2.gameObject.setBodySize(75, 1000);
+
+        this.lazer2_ = this.physics.add.sprite(-1000, -1000, 'lazer2').body.setAllowGravity(false);
+        this.lazer2_.gameObject.setScale(2, 1);
+        this.lazer2_.gameObject.setBodySize(1000, 75);
+
+        this.sheep0 = this.physics.add.sprite(-1000, -1000, 'sheep').body.setAllowGravity(false);
+        this.sheep0.gameObject.setScale(0.25);
+
+        this.sheep1 = this.physics.add.sprite(-1000, -1000, 'sheep').body.setAllowGravity(false);
+        this.sheep1.gameObject.setScale(0.25);
+
+        this.sheep2 = this.physics.add.sprite(-1000, -1000, 'sheep').body.setAllowGravity(false);
+        this.sheep2.gameObject.setScale(0.25);
 
         this.fire0 = this.physics.add.sprite(-1000, -1000, 'redBall').body.setAllowGravity(false);
         this.fire0.gameObject.setBodySize(25, 120);
@@ -186,6 +211,13 @@ class Example extends Phaser.Scene
         });
 
         this.anims.create({ 
+            key: 'lazer2',
+            frames: this.anims.generateFrameNumbers('lazer2', { start: 0, end: 11 }),
+            frameRate: 40,
+            repeat: -1
+        });
+
+        this.anims.create({ 
             key: 'darkBall',
             frames: this.anims.generateFrameNumbers('darkBall', { start: 0, end: 31 }),
             frameRate: 60,
@@ -199,6 +231,13 @@ class Example extends Phaser.Scene
             repeat: -1
         });
 
+        this.anims.create({ 
+            key: 'sheep',
+            frames: this.anims.generateFrameNumbers('sheep', { start: 0, end: 14 }),
+            frameRate: 60,
+            repeat: -1
+        });
+
         //  Input Events
         this.cursors = this.input.keyboard.createCursorKeys();
 
@@ -207,12 +246,21 @@ class Example extends Phaser.Scene
 
         // bgm start
         this.bgm = this.sound.add('mainBgm');
+        this.bgm.seek = 1;
         this.bgm.play();
 
         // boss patern
         this.boss.gameObject.anims.play('idleE', true);
         this.halo.gameObject.anims.play('darkBall', true);
+
         this.lazer0.gameObject.anims.play('lazer', true);
+        this.lazer1.gameObject.anims.play('lazer', true);
+        this.lazer2.gameObject.anims.play('lazer', true);
+        this.lazer2_.gameObject.anims.play('lazer2', true);
+
+        this.sheep0.gameObject.anims.play('sheep', true);
+        this.sheep1.gameObject.anims.play('sheep', true);
+        this.sheep2.gameObject.anims.play('sheep', true);
 
         this.fire0.gameObject.anims.play('redBall');
         this.fire1.gameObject.anims.play('redBall');
@@ -222,9 +270,14 @@ class Example extends Phaser.Scene
         this.fire5.gameObject.anims.play('redBall');
         
         this.events.once('fire', this.fireRain, this);
+        this.events.once('sheepBoom', this.sheepBoom, this);
+        this.events.once('sheepBoom2', this.sheepBoom2, this);
         
         //  Checks to see if the player overlaps with any of the stars, if he does call the collectStar function
         this.physics.add.overlap(this.player, this.lazer0, this.count2, null, this);
+        this.physics.add.overlap(this.player, this.lazer1, this.count2, null, this);
+        this.physics.add.overlap(this.player, this.lazer2, this.count2, null, this);
+        this.physics.add.overlap(this.player, this.lazer2_, this.count2, null, this);
         this.physics.add.overlap(this.player, this.fire0, this.count1, null, this);
         this.physics.add.overlap(this.player, this.fire1, this.count1, null, this);
         this.physics.add.overlap(this.player, this.fire2, this.count1, null, this);
@@ -238,6 +291,7 @@ class Example extends Phaser.Scene
         console.log(`hit lazer`);
         this.hpText.setText(`hp: 0`);
         this.gameOver = true;
+        this.gameStatus = 'lose';
     }
 
     count1() {
@@ -245,7 +299,9 @@ class Example extends Phaser.Scene
         this.hp = this.hp - 30;
         this.hpText.setText(`hp: ${this.hp}`);
         if(this.hp <= 0) {
+            this.hpText.setText(`hp: ${this.hp}`);
             this.gameOver = true;
+            this.gameStatus = 'lose';
         }
     }
 
@@ -254,8 +310,9 @@ class Example extends Phaser.Scene
         if (this.gameOver)
         {
             this.bgm.pause();
-            this.sys.gameDestroy(true);
-            return;
+            this.scene.pause();
+            this.scene.launch('badEnd', {flag: this.gameStatus});
+            
         }
         
         //console.dir(this.boss);
@@ -306,13 +363,12 @@ class Example extends Phaser.Scene
             this.events.emit('fire');   
         }else if(this.bgm.seek < 74 && this.bgm.seek >= 65) {
             this.isShoot = false;
+            this.events.emit('sheepBoom');
         }else if(this.bgm.seek >= 74) {
             this.isShoot = true;
         }else if(this.bgm.seek == 0) {
             this.isShoot = false;
         }
-
-
 
         //console.log(this.bgm.seek);
         
@@ -322,7 +378,7 @@ class Example extends Phaser.Scene
         setInterval(e => {
             if(this.isShoot){
                 this.fire0.gameObject.setVelocityY(0);
-                this.fire0.gameObject.x = Phaser.Math.Between(0, 133);
+                this.fire0.gameObject.x = Phaser.Math.Between(20, 133);
                 this.fire0.gameObject.y = 100;
     
                 this.fire1.gameObject.setVelocityY(0);
@@ -342,7 +398,7 @@ class Example extends Phaser.Scene
                 this.fire4.gameObject.y = 100;
 
                 this.fire4.gameObject.setVelocityY(0);
-                this.fire4.gameObject.x = Phaser.Math.Between(667, 800);
+                this.fire4.gameObject.x = Phaser.Math.Between(667, 780);
                 this.fire4.gameObject.y = 100;
             }
             
@@ -360,6 +416,116 @@ class Example extends Phaser.Scene
 
     }
     
+    sheepBoom() {
+        this.sheep0.gameObject.x = 200;
+        this.sheep0.gameObject.y = 300;
+
+        setTimeout(e => {
+            this.sheep1.gameObject.x = 600;
+            this.sheep1.gameObject.y = 300;
+        }, 2000)
+
+        setTimeout(e => {
+            this.sheep2.gameObject.x = 400;
+            this.sheep2.gameObject.y = 500;
+        }, 4500)
+
+        setTimeout(e => {
+            this.sheep0.gameObject.x = -1000;
+            this.sheep0.gameObject.y = -1000;
+            
+            this.sheep1.gameObject.x = -1000;
+            this.sheep1.gameObject.y = -1000;
+            
+            this.sheep2.gameObject.x = -1000;
+            this.sheep2.gameObject.y = -1000;
+
+            this.lazer0.gameObject.x = 200;
+            this.lazer0.gameObject.y = 300;
+
+            this.lazer1.gameObject.x = 600;
+            this.lazer1.gameObject.y = 300;
+
+            this.lazer2.gameObject.x = 400;
+            this.lazer2.gameObject.y = 300;
+        }, 8200)
+
+        setTimeout(e => {
+            this.lazer0.gameObject.x = -1000;
+            this.lazer0.gameObject.y = -1000;
+
+            this.lazer1.gameObject.x = -1000;
+            this.lazer1.gameObject.y = -1000;
+
+            this.lazer2.gameObject.x = -1000;
+            this.lazer2.gameObject.y = -1000;
+
+            this.sheepBoom2();
+        }, 9300)
+}
+
+    sheepBoom2() {
+        setInterval(e => {
+            if(this.bgm.seek != 0) {
+                this.lazer2_.gameObject.x = -1000;
+                this.lazer2_.gameObject.y = -1000;
+    
+                let x = this.getRandomInt(0, 2);
+                let y = this.getRandomInt(0, 3);
+    
+                let xpos;
+                let ypos;
+                if(x == 0) {
+                    xpos = 100;
+                }else if(x == 1) {
+                    xpos = 700;
+                }
+                ypos = 300 + y * 100;
+    
+                this.sheep0.gameObject.x = xpos;
+                this.sheep0.gameObject.y = ypos;
+    
+                setTimeout(e => {
+                    this.sheep0.gameObject.x = -1000;
+                    this.sheep0.gameObject.y = -1000;
+    
+                    this.lazer2_.gameObject.x = 300;
+                    this.lazer2_.gameObject.y = ypos;
+    
+                },1999);
+            }
+        }, 2284)
+        
+    }
+
+    getRandomInt(min, max) {
+        min = Math.ceil(min);
+        max = Math.floor(max);
+        return Math.floor(Math.random() * (max - min)) + min; //최댓값은 제외, 최솟값은 포함
+    }
+
+}
+
+class BadEnd extends Phaser.Scene
+{
+    
+    constructor () {
+        super({key : 'badEnd'});
+    }
+
+    preload ()
+    {
+        this.load.image('E', './img/illustrate/bloodyE.png');
+    }
+    create ()
+    {
+        this.add.image(400, 300, 'E')
+    }
+
+    update ()
+    {
+        
+    }
 
 }
 
@@ -371,10 +537,10 @@ const config = {
         default: 'arcade',
         arcade: {
             gravity: { y: 1500 },
-            debug: true
+            debug: false
         }
     },
-    scene: Example
+    scene: [Main, BadEnd]
 };
 
 const game = new Phaser.Game(config);
